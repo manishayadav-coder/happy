@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>शुभ दीपावली</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Noto Sans Devanagari", sans-serif;
+      height: 100vh;
+      background: radial-gradient(circle at bottom, #1e1e2f, #000);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+    h1 {
+      font-size: 38px;
+      margin-bottom: 20px;
+      color: #ffcc00;
+      text-shadow: 2px 2px 8px #000;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    #greeting {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    .thank {
+      margin-top: 10px;
+      font-size: 22px;
+      font-weight: bold;
+      animation: glow 1.5s infinite alternate;
+      display: none;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #ff0; }
+      to { text-shadow: 0 0 20px #f00; }
+    }
+    input {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      width: 80%;
+      max-width: 300px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .main-share-btn {
+      background: linear-gradient(45deg,#ff512f,#dd2476);
+      border: none;
+      padding: 14px 40px;
+      border-radius: 50px;
+      font-size: 18px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      transition: 0.3s;
+    }
+    .main-share-btn:hover { transform: scale(1.08); }
+    .share-btns {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .share-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+    .share-option span { font-size: 22px; }
+    .share-option:hover { transform: scale(1.05); }
+    .whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
+    .instagram { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4); }
+    .facebook { background: linear-gradient(135deg, #1877f2, #0e5aa7); }
+    .twitter { background: linear-gradient(135deg, #1da1f2, #0d8ddb); }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+      .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .img-box {
+      border: 5px solid gold;
+      border-radius: 10px;
+      padding: 5px;
+      background: #000;
+      box-shadow: 0 0 15px gold;
+    }
+     .img-box img {
+      width: 100%;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+    <canvas id="fireworks"></canvas>
+
+  <div class="container">
+    <div class="img-box">
+      <img src="diwali pic.webp" alt="दीपावली">
+    </div>
+  
+
+  <div class="content">
+    <h1>✨ शुभ दीपावली ✨</h1>
+    <div id="greeting"></div>
+    <div id="thank" class="thank">Thank you ✨</div>
+
+    <input type="text" id="name" placeholder="यहाँ अपना नाम लिखें">
+    <button class="main-share-btn" onclick="toggleShare()">🔗 Share</button>
+
+    <div class="share-btns" id="shareBtns">
+      <a id="whatsapp" class="share-option whatsapp" target="_blank">WhatsApp <span>📱</span></a>
+      <a id="instagram" class="share-option instagram" target="_blank">Instagram <span>📸</span></a>
+      <a id="facebook" class="share-option facebook" target="_blank">Facebook <span>📘</span></a>
+      <a id="twitter" class="share-option twitter" target="_blank">Twitter <span>🐦</span></a>
+    </div>
+  </div>
+
+<script>
+  // --- read ?from parameter and show greeting ---
+  function getParam(name) {
+    const url = new URL(window.location.href);
+    return url.searchParams.get(name);
+  }
+  const fromParam = getParam("from");
+  if(fromParam){
+    const safe = decodeURIComponent(fromParam).replace(/</g,"&lt;");
+    document.getElementById("greeting").innerHTML = `<b>${safe}</b> की ओर से दीवाली की शुभकामनाएँ 🎉`;
+    document.getElementById("thank").style.display="block";
+  }
+
+  // --- toggle share buttons ---
+  function toggleShare() {
+    let box = document.getElementById("shareBtns");
+    box.style.display = (box.style.display === "flex") ? "none" : "flex";
+    updateLinks();
+  }
+
+  // --- update share links with ?from param ---
+  function updateLinks() {
+    let name = document.getElementById("name").value.trim() || "मित्र";
+    const encoded = encodeURIComponent(name);
+    const link = `${window.location.origin}${window.location.pathname}?from=${encoded}`;
+
+    let msg = `✨ शुभ दीपावली ✨\n${name} की ओर से आपको ढेरों शुभकामनाएँ 🎉\n${link}`;
+
+    document.getElementById("whatsapp").href =
+      `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    document.getElementById("instagram").href =
+      `https://www.instagram.com/?url=${encodeURIComponent(link)}`;
+    document.getElementById("facebook").href =
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
+    document.getElementById("twitter").href =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(msg)}`;
+  }
+
+  // --- Fireworks animation ---
+  const canvas = document.getElementById("fireworks");
+  const ctx = canvas.getContext("2d");
+  let particles = [];
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  function random(min, max) { return Math.random() * (max - min) + min; }
+
+  class Particle {
+    constructor(x, y, color) {
+      this.x = x; this.y = y;
+      this.color = color; this.radius = 2;
+      this.alpha = 1; this.angle = random(0, Math.PI * 2);
+      this.speed = random(2, 7);
+    }
+    update() {
+      this.x += Math.cos(this.angle) * this.speed;
+      this.y += Math.sin(this.angle) * this.speed;
+      this.alpha -= 0.01;
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function createFirework(x, y) {
+    let colors = ["#ff0000", "#ffcc00", "#00ffcc", "#ff66ff", "#00ff00"];
+    let color = colors[Math.floor(Math.random() * colors.length)];
+    for (let i = 0; i < 50; i++) particles.push(new Particle(x, y, color));
+  }
+
+  function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p, i) => {
+      p.update(); p.draw();
+      if (p.alpha <= 0) particles.splice(i, 1);
+    });
+    requestAnimationFrame(animate);
+  }
+
+  setInterval(() => {
+    let x = random(100, canvas.width - 100);
+    let y = random(100, canvas.height / 2);
+    createFirework(x, y);
+  }, 1500);
+
+  animate();
+</script>
+</body>
+</html>
